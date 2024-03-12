@@ -28,14 +28,14 @@ func main() {
 	message, signature, publicKey := getInput()
 
 	if ed25519.Verify(publicKey, message, signature) {
-		fmt.Println("Message signature is OK")
+		fmt.Println("\x1b[32mMessage signature is OK\x1b[0m")
 		// Delete the message file if the signature is valid to prevent false positives during future runs
 		if err := os.Remove(messageFile); err != nil {
-			fmt.Println("Error removing message file: %v", err)
+			fmt.Println("Error removing message file:", err)
 			os.Exit(1)
 		}
 	} else {
-		fmt.Println("Invalid message signature")
+		fmt.Println("\x1b[31mInvalid message signature\x1b[0m")
 		os.Exit(1)
 	}
 }

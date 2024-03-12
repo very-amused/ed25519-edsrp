@@ -60,4 +60,5 @@ test-c:
 
 clean:
 	rm -rf $(objects) $(objects-wasm) $(ed25519_all) ed25519
+	cd test; $(MAKE) clean
 .PHONY: clean
