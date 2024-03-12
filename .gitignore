@@ -3,3 +3,6 @@ ed25519
 test/message.txt
 node_modules
 build/
+compile_commands.json
+.cache/
+test_c

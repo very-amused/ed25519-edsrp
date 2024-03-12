@@ -17,9 +17,10 @@ func getInput() (message, signature, publicKey []byte) {
 	}
 	lines := strings.Split(string(file), "\n")
 
-	message, _ = base64.StdEncoding.DecodeString(lines[0])
-	signature, _ = base64.StdEncoding.DecodeString(lines[1])
-	publicKey, _ = base64.StdEncoding.DecodeString(lines[2])
+	signedMessage, _ := base64.StdEncoding.DecodeString(lines[0])
+	signature = signedMessage[0:64]
+	message = signedMessage[64:]
+	publicKey, _ = base64.StdEncoding.DecodeString(lines[1])
 	return message, signature, publicKey
 }
 

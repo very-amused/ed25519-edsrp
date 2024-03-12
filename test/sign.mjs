@@ -29,10 +29,10 @@ const file = fs.readFileSync('build/ed25519_edsrp.wasm')
 	console.log('Signing message')
   const signedMessageLen = 64 + messageLen
   const signedMessagePtr = ed25519.malloc(signedMessageLen)
+	const signedMessageView = new Uint8Array(ed25519.memory.buffer, signedMessagePtr, signedMessageLen)
   ed25519.ed25519_sign(signedMessagePtr, messagePtr, messageLen, privateKeyPtr)
 
-  const encodedMessage = Buffer.from(messageView).toString('base64')
-  const encodedSignature = Buffer.from(new Uint8Array(ed25519.memory.buffer, signedMessagePtr, 64)).toString('base64')
+  const encodedSignedMessage = Buffer.from(signedMessageView).toString('base64')
   const publicKeyView = new Uint8Array(ed25519.memory.buffer, publicKeyPtr, publicKeyLen)
   const encodedPublicKey = Buffer.from(publicKeyView).toString('base64')
 
@@ -42,5 +42,5 @@ const file = fs.readFileSync('build/ed25519_edsrp.wasm')
   ed25519.free(messagePtr)
   ed25519.free(signedMessagePtr)
 
-  fs.writeFileSync('test/message.txt', `${encodedMessage}\n${encodedSignature}\n${encodedPublicKey}`)
+  fs.writeFileSync('test/message.txt', `${encodedSignedMessage}\n${encodedPublicKey}`)
 })()
