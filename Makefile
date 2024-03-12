@@ -40,6 +40,10 @@ prepare:
 	if [ ! -d ed25519 ]; then $(SHELL) prepare.sh; fi
 .PHONY: prepare
 
+test:
+	node test/sign.mjs && go run ./test
+.PHONY: test
+
 clean:
 	rm -rf $(objects) $(objects-wasm) $(ed25519_all) ed25519
 .PHONY: clean
