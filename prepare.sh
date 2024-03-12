@@ -1,6 +1,8 @@
 #! /bin/sh
 
-# Build a portable WASM binary of Daniel J. Bernstein's ref10 implementation of the ed25519 signature algorithm.
+# This script downloads and patches Daniel J. Bernstein's ref10 implementation of Ed25519, placing the patched source code in the 'ed25519' directory.
+# The API for this patched source is defined in 'include/*.h'.
+
 SUPERCOP_VERSION=20240107
 SUPERCOP_SRC=supercop-${SUPERCOP_VERSION}
 
