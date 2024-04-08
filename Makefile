@@ -40,13 +40,13 @@ $(ed25519_wasm): $(objects-wasm)
 
 install: $(ed25519) include/ed25519.h
 	install -d $(DESTDIR)$(PREFIX)/lib
-	install -m644 $(ed25519) $(DESTDIR)$(PREFIX)/lib/edsrp_ed25519.a
+	install -m644 $(ed25519) $(DESTDIR)$(PREFIX)/lib/libedsrp_ed25519.a
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -m644 include/ed25519.h $(DESTDIR)$(PREFIX)/include/edsrp_ed25519.h
 .PHONY: install
 
 uninstall:
-	rm -f $(DESTDIR)$(PREFIX)/lib/edsrp_ed25519.a
+	rm -f $(DESTDIR)$(PREFIX)/lib/libedsrp_ed25519.a
 	rm -f $(DESTDIR)$(PREFIX)/include/edsrp_ed25519.h
 .PHONY: uninstall
 
