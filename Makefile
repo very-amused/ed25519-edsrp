@@ -5,6 +5,10 @@ WASM_CFLAGS=$(CFLAGS) --no-entry
 WASM_EXPORTED_FUNCTIONS=_malloc,_free,_ed25519_keypair,_ed25519_sign
 WASM_LDFLAGS=-s EXPORTED_FUNCTIONS=$(WASM_EXPORTED_FUNCTIONS)
 
+# Installation vars
+ifndef PREFIX
+PREFIX=/usr/local
+endif
 
 # Source and object files
 src=ed25519/keypair.c ed25519/sign.c \
@@ -18,8 +22,8 @@ outdir=build
 $(shell if [ ! -d $(outdir) ]; then mkdir $(outdir); fi)
 
 # Build targets
-ed25519=$(outdir)/ed25519_edsrp.a
-ed25519_wasm=$(outdir)/ed25519_edsrp.wasm
+ed25519=$(outdir)/edsrp_ed25519.a
+ed25519_wasm=$(outdir)/edsrp_ed25519.wasm
 ed25519_all=$(ed25519) $(ed25519_wasm)
 
 # Prefix helper for testing
@@ -33,6 +37,18 @@ $(ed25519): $(objects)
 
 $(ed25519_wasm): $(objects-wasm)
 	emcc -o $@ $^ $(WASM_LDFLAGS) $(WASM_CFLAGS)
+
+install: $(ed25519) include/ed25519.h
+	install -d $(DESTDIR)$(PREFIX)/lib
+	install -m644 $(ed25519) $(DESTDIR)$(PREFIX)/lib/edsrp_ed25519.a
+	install -d $(DESTDIR)$(PREFIX)/include
+	install -m644 include/ed25519.h $(DESTDIR)$(PREFIX)/include/edsrp_ed25519.h
+.PHONY: install
+
+uninstall:
+	rm -f $(DESTDIR)$(PREFIX)/lib/edsrp_ed25519.a
+	rm -f $(DESTDIR)$(PREFIX)/include/edsrp_ed25519.h
+.PHONY: uninstall
 
 ed25519/%.o: ed25519/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
