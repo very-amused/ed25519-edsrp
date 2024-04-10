@@ -29,14 +29,21 @@ ed25519_all=$(ed25519) $(ed25519_wasm)
 # Prefix helper for testing
 prefix=sed -e 's/^/\x1b[1m[$@]\x1b[0m /'
 
-all: $(ed25519_all)
+ed25519: $(ed25519)
+.PHONY: ed25519
+
+all: ed25519 wasm
 .PHONY: all
+
+wasm: $(ed25519_wasm)
+.PHONY: wasm
 
 $(ed25519): $(objects)
 	$(AR) rcs $@ $^
 
+$(ed25519_wasm): CC=emcc
 $(ed25519_wasm): $(objects-wasm)
-	emcc -o $@ $^ $(WASM_LDFLAGS) $(WASM_CFLAGS)
+	$(CC) -o $@ $^ $(WASM_LDFLAGS) $(WASM_CFLAGS)
 
 install: $(ed25519) include/ed25519.h
 	install -d $(DESTDIR)$(PREFIX)/lib
@@ -53,8 +60,9 @@ uninstall:
 ed25519/%.o: ed25519/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
+ed25519/%.wasm.o: CC=emcc
 ed25519/%.wasm.o: ed25519/%.c
-	emcc -c -o $@ $< $(WASM_CFLAGS)
+	$(CC) -c -o $@ $< $(WASM_CFLAGS)
 
 prepare:
 	if [ ! -d ed25519 ]; then $(SHELL) prepare.sh; fi
