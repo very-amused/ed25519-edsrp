@@ -15,6 +15,7 @@ src=ed25519/keypair.c ed25519/sign.c \
 	ed25519/ge.c ed25519/fe.c ed25519/sc_muladd.c ed25519/sc_reduce.c \
 	ed25519/sha512/hash.c ed25519/sha512/blocks/blocks.c ed25519/verify32/verify.c
 objects=$(src:.c=.o)
+objects-pic=$(src:.c=.pic.o)
 objects-wasm=$(src:.c=.wasm.o)
 
 # Ensure output dir exists
@@ -23,41 +24,57 @@ $(shell if [ ! -d $(outdir) ]; then mkdir $(outdir); fi)
 
 # Build targets
 ed25519=$(outdir)/edsrp_ed25519.a
+ed25519_so=$(outdir)/edsrp_ed25519.so
 ed25519_wasm=$(outdir)/edsrp_ed25519.wasm
 ed25519_all=$(ed25519) $(ed25519_wasm)
 
 # Prefix helper for testing
 prefix=sed -e 's/^/\x1b[1m[$@]\x1b[0m /'
 
+release: ed25519 so
+.PHONY: release
+
 ed25519: $(ed25519)
 .PHONY: ed25519
 
-all: ed25519 wasm
-.PHONY: all
+so: $(ed25519_so)
+.PHONY: ed25519_so
 
 wasm: $(ed25519_wasm)
 .PHONY: wasm
 
+all: ed25519 wasm so
+.PHONY: all
+
 $(ed25519): $(objects)
 	$(AR) rcs $@ $^
+
+$(ed25519_so): $(objects-pic)
+	$(CC) -shared -o $@ $^
 
 $(ed25519_wasm): CC=emcc
 $(ed25519_wasm): $(objects-wasm)
 	$(CC) -o $@ $^ $(WASM_LDFLAGS) $(WASM_CFLAGS)
 
-install: $(ed25519) include/ed25519.h
+install: $(ed25519) $(ed25519_so) include/ed25519.h
 	install -d $(DESTDIR)$(PREFIX)/lib
 	install -m644 $(ed25519) $(DESTDIR)$(PREFIX)/lib/libedsrp_ed25519.a
+	install -m644 $(ed25519_so) $(DESTDIR)$(PREFIX)/lib/libedsrp_ed25519.so
 	install -d $(DESTDIR)$(PREFIX)/include
 	install -m644 include/ed25519.h $(DESTDIR)$(PREFIX)/include/edsrp_ed25519.h
 .PHONY: install
 
 uninstall:
 	rm -f $(DESTDIR)$(PREFIX)/lib/libedsrp_ed25519.a
+	rm -f $(DESTDIR)$(PREFIX)/lib/libedsrp_ed25519.so
 	rm -f $(DESTDIR)$(PREFIX)/include/edsrp_ed25519.h
 .PHONY: uninstall
 
 ed25519/%.o: ed25519/%.c
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+ed25519/%.pic.o: CFLAGS += -fPIC
+ed25519/%.pic.o: ed25519/%.c
 	$(CC) -c -o $@ $< $(CFLAGS)
 
 ed25519/%.wasm.o: CC=emcc
@@ -68,7 +85,7 @@ prepare:
 	if [ ! -d ed25519 ]; then $(SHELL) prepare.sh; fi
 .PHONY: prepare
 
-test: test-wasm .WAIT test-c
+test: all .WAIT test-wasm .WAIT test-c
 .PHONY: test
 
 test-wasm:
@@ -83,6 +100,6 @@ test-c:
 .PHONY: test-c
 
 clean:
-	rm -rf $(objects) $(objects-wasm) $(ed25519_all) ed25519
+	rm -rf $(objects) $(objects-wasm) $(ed25519_all) ed25519 build
 	cd test; $(MAKE) clean
 .PHONY: clean

@@ -4,7 +4,7 @@ LDFLAGS=-lssl -lcrypto
 # Source files
 src=base64.c sign.c
 
-slib=../build/ed25519_edsrp.a
+slib=../build/edsrp_ed25519.a
 
 # Build targets
 test=sign_c

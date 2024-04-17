@@ -1,7 +1,7 @@
 import fs from 'node:fs'
 import crypto from 'node:crypto'
 
-const file = fs.readFileSync('build/ed25519_edsrp.wasm')
+const file = fs.readFileSync('build/edsrp_ed25519.wasm')
 
 ;(async function() {
   const src = await WebAssembly.instantiate(file)
