@@ -68,6 +68,7 @@ patch_ed25519() {
   patch ed25519/keypair.c patches/keypair.diff
   patch -d ed25519 -i ../patches/sc.diff
   patch ed25519/sign.c patches/sign.diff
+	patch ed25519/open.c patches/open.diff
 }
 
 [ -x ed25519 ] && rm -rf ed25519

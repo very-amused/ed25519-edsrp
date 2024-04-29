@@ -1,9 +1,15 @@
 # Build options
-O=-O2
-CFLAGS=$(O) -Wall -I ed25519 -flto
+O=-O3
+override CFLAGS=$(O) -Wall -I ed25519 -flto
+override LDFLAGS=-flto
 WASM_CFLAGS=$(CFLAGS) --no-entry
-WASM_EXPORTED_FUNCTIONS=_malloc,_free,_ed25519_keypair,_ed25519_sign
-WASM_LDFLAGS=-s EXPORTED_FUNCTIONS=$(WASM_EXPORTED_FUNCTIONS)
+WASM_EXPORTED_FUNCTIONS=_malloc,_free,_ed25519_keypair,_ed25519_sign,_ed25519_verify
+WASM_LDFLAGS=$(LDFLAGS) -s EXPORTED_FUNCTIONS=$(WASM_EXPORTED_FUNCTIONS)
+
+# We prefer building with clang if possible
+ifneq (,$(shell which clang))
+override CC=clang
+endif
 
 # Installation vars
 ifndef PREFIX
@@ -11,7 +17,7 @@ PREFIX=/usr/local
 endif
 
 # Source and object files
-src=ed25519/keypair.c ed25519/sign.c \
+src=ed25519/keypair.c ed25519/sign.c ed25519/open.c \
 	ed25519/ge.c ed25519/fe.c ed25519/sc_muladd.c ed25519/sc_reduce.c \
 	ed25519/sha512/hash.c ed25519/sha512/blocks/blocks.c ed25519/verify32/verify.c
 objects=$(src:.c=.o)
@@ -34,6 +40,9 @@ prefix=sed -e 's/^/\x1b[1m[$@]\x1b[0m /'
 release: ed25519 so
 .PHONY: release
 
+all: ed25519 wasm so
+.PHONY: all
+
 ed25519: $(ed25519)
 .PHONY: ed25519
 
@@ -43,14 +52,11 @@ so: $(ed25519_so)
 wasm: $(ed25519_wasm)
 .PHONY: wasm
 
-all: ed25519 wasm so
-.PHONY: all
-
 $(ed25519): $(objects)
 	$(AR) rcs $@ $^
 
 $(ed25519_so): $(objects-pic)
-	$(CC) -shared -o $@ $^
+	$(CC) -shared -o $@ $^ $(LDFLAGS)
 
 $(ed25519_wasm): CC=emcc
 $(ed25519_wasm): $(objects-wasm)
