@@ -40,7 +40,7 @@ Note that installing under `/usr` instead of `/usr/local` introduces the risk of
 ## Uninstallation/Removal
 ```sh
 # Uninstall from /usr/local
-make uninstall 
+make uninstall
 
 # Uninstall from /usr
 make uninstall PREFIX=/usr

@@ -18,7 +18,7 @@ int main() {
 	char *enc_pubkey = NULL;
 	size_t enc_pubkey_len = 0;
 
-	printf("Decoding message and pubkey\n");
+	// Read message and pubkey
 	static const char message_path[] = "test/message.txt";
 	FILE *f = fopen(message_path, "r");
 	assert(f != NULL);
@@ -40,13 +40,14 @@ int main() {
 	enc_pubkey_len = b64_encoded_len(pubkey_len);
 	enc_pubkey[enc_pubkey_len] = '\0';
 
-	// Perform decoding
+	// Decode
 	unsigned char pubkey[pubkey_len];
 	const size_t sm_len = b64_decoded_len(enc_sm, enc_sm_len);
 	unsigned char sm[sm_len];
 	assert(b64_decode(enc_sm, enc_sm_len, sm, sm_len) == 0);
 	assert(b64_decode(enc_pubkey, enc_pubkey_len, pubkey, pubkey_len) == 0);
-	printf("Verifying signature\n");
+
+	// Verify
 	if (ed25519_verify(sm, sm_len, pubkey) != 0) {
 		fprintf(stderr, "Failed to verify message (ed25519_verify)\n");
 		cleanup(&enc_sm, &enc_pubkey);

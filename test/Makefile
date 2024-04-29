@@ -1,6 +1,11 @@
 CFLAGS=-Wall -I ../include -I ./include
 LDFLAGS=-lssl -lcrypto
 
+# Prefer clang if available
+ifneq (,$(shell which clang))
+override CC=clang
+endif
+
 # Source files
 src-sign=sign.c
 src-verify=verify.c
