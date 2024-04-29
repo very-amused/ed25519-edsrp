@@ -34,18 +34,18 @@ int main() {
 	}
 
 	printf("Signing message\n");
-	const size_t signed_message_len = message_len + 64;
-	unsigned char signed_message[signed_message_len];
-	if (ed25519_sign(signed_message, message, message_len, privkey) != 0) {
+	const size_t sm_len = message_len + 64;
+	unsigned char sm[sm_len];
+	if (ed25519_sign(sm, message, message_len, privkey) != 0) {
 		fprintf(stderr, "Failed to sign message (ed25519_sign)\n");
 		return 1;
 	}
 
 	// Encode signed message and pubkey, then write to disk
-	const size_t enc_signed_message_len = b64_encoded_len(signed_message_len);
-	char enc_signed_message[enc_signed_message_len + 1];
-	enc_signed_message[enc_signed_message_len] = '\0'; // Perform null termination for safe use in fprintf
-	b64_encode(signed_message, signed_message_len, enc_signed_message, enc_signed_message_len);
+	const size_t enc_sm_len = b64_encoded_len(sm_len);
+	char enc_sm[enc_sm_len + 1];
+	enc_sm[enc_sm_len] = '\0'; // Perform null termination for safe use in fprintf
+	b64_encode(sm, sm_len, enc_sm, enc_sm_len);
 
 	const size_t enc_pubkey_len = b64_encoded_len(pubkey_len);
 	char enc_pubkey[enc_pubkey_len + 1];
@@ -53,7 +53,7 @@ int main() {
 	b64_encode(pubkey, pubkey_len, enc_pubkey, enc_pubkey_len);
 
 	FILE *f = fopen("test/message.txt", "w");
-	fprintf(f, "%s\n%s", enc_signed_message, enc_pubkey);
+	fprintf(f, "%s\n%s", enc_sm, enc_pubkey);
 	fclose(f);
 
 	return 0;

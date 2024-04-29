@@ -1,12 +1,11 @@
 # Build options
 O=-O3
-override CFLAGS=$(O) -Wall -I ed25519 -flto
-override LDFLAGS=-flto
+override CFLAGS=$(O) -Wall -I ed25519
 WASM_CFLAGS=$(CFLAGS) --no-entry
 WASM_EXPORTED_FUNCTIONS=_malloc,_free,_ed25519_keypair,_ed25519_sign,_ed25519_verify
-WASM_LDFLAGS=$(LDFLAGS) -s EXPORTED_FUNCTIONS=$(WASM_EXPORTED_FUNCTIONS)
+WASM_LDFLAGS=-s EXPORTED_FUNCTIONS=$(WASM_EXPORTED_FUNCTIONS)
 
-# We prefer building with clang if possible
+# Prefer building with clang if available
 ifneq (,$(shell which clang))
 override CC=clang
 endif
@@ -56,7 +55,7 @@ $(ed25519): $(objects)
 	$(AR) rcs $@ $^
 
 $(ed25519_so): $(objects-pic)
-	$(CC) -shared -o $@ $^ $(LDFLAGS)
+	$(CC) -shared -o $@ $^
 
 $(ed25519_wasm): CC=emcc
 $(ed25519_wasm): $(objects-wasm)
@@ -91,7 +90,7 @@ prepare:
 	if [ ! -d ed25519 ]; then $(SHELL) prepare.sh; fi
 .PHONY: prepare
 
-test: all .WAIT test-wasm .WAIT test-c
+test: all .WAIT test-wasm .WAIT test-c .WAIT test-c-verify
 .PHONY: test
 
 test-wasm:
@@ -104,6 +103,12 @@ test-c:
 	./test/sign_c | $(prefix)
 	go run ./test/verify | $(prefix)
 .PHONY: test-c
+
+test-c-verify:
+	@cd test; $(MAKE) | $(prefix)
+	./test/sign_c | $(prefix)
+	./test/verify_c | $(prefix)
+.PHONY: test-c-verify
 
 clean:
 	rm -rf $(objects) $(objects-wasm) $(ed25519_all) ed25519 build

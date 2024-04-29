@@ -2,16 +2,24 @@ CFLAGS=-Wall -I ../include -I ./include
 LDFLAGS=-lssl -lcrypto
 
 # Source files
-src=base64.c sign.c
+src-sign=sign.c
+src-verify=verify.c
+lib-b64=base64.c
 
 slib=../build/edsrp_ed25519.a
 
-# Build targets
-test=sign_c
+targets=sign_c verify_c
 
-$(test): $(src) $(slib)
+# Build targets
+all: $(targets)
+.PHONY: all
+
+sign_c: $(src-sign) $(lib-b64) $(slib)
+	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
+
+verify_c: $(src-verify) $(lib-b64) $(slib)
 	$(CC) -o $@ $^ $(CFLAGS) $(LDFLAGS)
 
 clean:
-	rm -f $(test)
+	rm -f $(targets)
 .PHONY: clean
