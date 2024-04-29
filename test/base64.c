@@ -28,10 +28,9 @@ static void b64_trim_padding(const char *encoded, size_t *encoded_len) {
 	}
 }
 
-const size_t b64_decoded_len(const char *encoded, const size_t encoded_len) {
-	size_t nopad_enc_len = encoded_len;
-	b64_trim_padding(encoded, &nopad_enc_len);
-	return b64_decoded_maxlen(nopad_enc_len);
+const size_t b64_decoded_len(const char *encoded, size_t encoded_len) {
+	b64_trim_padding(encoded, &encoded_len);
+	return b64_decoded_maxlen(encoded_len);
 }
 
 // Encode up to 3 bytes from src into dst
