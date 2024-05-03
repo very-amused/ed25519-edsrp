@@ -20,9 +20,9 @@ make all
 
 ## Installation
 ```sh
-# Run tests before installing
+# Run tests before installing (requires Go)
 make test-simple
-# `make test` includes wasm tests which require Emscripten
+# `make test` includes wasm tests which require Emscripten and Node.js
 
 # Install with PREFIX=/usr/local
 make install

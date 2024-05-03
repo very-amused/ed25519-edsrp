@@ -11,9 +11,7 @@ override CC=clang
 endif
 
 # Installation vars
-ifndef PREFIX
-PREFIX=/usr/local
-endif
+PREFIX ?= /usr/local
 
 # Source and object files
 src=ed25519/keypair.c ed25519/sign.c ed25519/open.c \
