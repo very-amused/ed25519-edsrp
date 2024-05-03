@@ -12,7 +12,7 @@ make
 # Build individual targets
 make ed25519 # Static lib
 make so # Shared lib
-make wasm # WebAssembly lib (Emscripten toolchain is required)
+make wasm # WebAssembly lib (Emscripten required)
 
 # Build all individual targets
 make all
@@ -21,7 +21,8 @@ make all
 ## Installation
 ```sh
 # Run tests before installing
-make test
+make test-simple
+# `make test` includes wasm tests which require Emscripten
 
 # Install with PREFIX=/usr/local
 make install

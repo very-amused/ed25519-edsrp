@@ -93,6 +93,9 @@ prepare:
 test: all .WAIT test-wasm .WAIT test-c .WAIT test-c-verify
 .PHONY: test
 
+test-simple: release .WAIT test-c .WAIT test-c-verify
+.PHONY: test-simple
+
 test-wasm:
 	node test/sign.mjs | $(prefix)
 	go run ./test/verify | $(prefix)
